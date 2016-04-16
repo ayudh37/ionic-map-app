@@ -20,6 +20,68 @@ angular.module('starter', ['ionic', 'ngCordova'])
   })
 })
 
+.controller('MapCtrl',function($scope, $cordovaCamera, $ionicPopup){
+
+   $scope.showAlert = function(title) {
+   var alertPopup = $ionicPopup.alert({
+     title: title
+   });
+
+   alertPopup.then(function(res) {
+     console.log('Thank you for not eating my delicious ice cream cone');
+   });
+ };
+
+  $scope.takePicture = function() {
+        var options = { 
+            quality : 75, 
+            destinationType : Camera.DestinationType.DATA_URL, 
+            sourceType : Camera.PictureSourceType.CAMERA, 
+            allowEdit : true,
+            encodingType: Camera.EncodingType.JPEG,
+            targetWidth: 300,
+            targetHeight: 300,
+            popoverOptions: CameraPopoverOptions,
+            saveToPhotoAlbum: false
+        };
+ 
+        $cordovaCamera.getPicture(options).then(function(imageData) {
+            $scope.imgURI = "data:image/jpeg;base64," + imageData;
+            $cordovaFileTransfer.upload("192.168.56.255/upload.php",$scope.imgURI).then(function(result) {
+                        $scope.showAlert(response);
+            alert("SUCCESS: " + JSON.stringify(result.response));
+        }, function(err) {
+                        $scope.showAlert(response);
+
+            alert("ERROR: " + JSON.stringify(err));
+        });
+        }, function(err) {
+            // An error occured. Show a message to the user
+        });
+    }
+
+    $scope.getPhoto = function() {
+    Camera.getPicture().then(function(imageURI) {
+      console.log(imageURI);
+      $scope.lastPhoto = imageURI;
+      $cordovaFileTransfer.upload("192.168.56.1/upload.php",imageURI).then(function(result) {
+            alert("SUCCESS: " + JSON.stringify(result.response));
+        }, function(err) {
+            alert("ERROR: " + JSON.stringify(err));
+        });
+
+    }, function(err) {
+      console.err(err);
+    }, {
+      quality: 75,
+      targetWidth: 320,
+      targetHeight: 320,
+      saveToPhotoAlbum: false
+    });
+  };
+
+})
+
 .config(function($stateProvider, $urlRouterProvider) {
 
   $stateProvider
